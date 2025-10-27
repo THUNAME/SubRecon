@@ -1,42 +1,87 @@
-#!/usr/bin/python
-# extract_ipv6_prefixes.py
+#!/usr/bin/env python3
+# extract_ipv6_prefixes_fast.py
 
+import sys
 import argparse
 
+try:
+    import SubnetTree
+except Exception as e:
+    print(e, file=sys.stderr)
+    print("Use `pip install pysubnettree` to install the required module", file=sys.stderr)
+    sys.exit(1)
+
+
 def process_ipasn_file(input_file, output_file):
-    try:
-        with open(input_file, 'r') as infile, open(output_file, 'w') as outfile:
-            for line in infile:
-                # Remove leading and trailing whitespace from the line
-                line = line.strip()
-                if not line:
-                    continue  # Skip empty lines
+    total_count = 0
+    removed_long = 0
+    removed_subsumed = 0
 
-                # Split each line using the tab character as the delimiter
-                parts = line.split('\t')
-                if len(parts) < 2:
-                    print(f"Warning: Skipping invalid line: {line}")
-                    continue
+    prefixes = []
 
-                # Extract the first prefix (IPv6 address part)
-                ipv6_prefix = parts[0]
+    # Step 1: Read and filter prefixes
+    with open(input_file, 'r') as infile:
+        for line in infile:
+            line = line.strip()
+            if not line:
+                continue
 
-                # Write the extracted prefix to the new file
-                outfile.write(ipv6_prefix + '\n')
+            parts = line.split('\t')
+            if len(parts) < 2:
+                continue
 
-        print(f"Processing complete. Extracted prefixes saved to {output_file}")
-    except FileNotFoundError:
-        print(f"Error: File {input_file} not found.")
-    except Exception as e:
-        print(f"An error occurred: {e}")
+            prefix = parts[0]
+            if '/' not in prefix:
+                continue
+
+            try:
+                plen = int(prefix.split('/')[1])
+            except ValueError:
+                continue
+
+            total_count += 1
+            if plen >= 64:
+                removed_long += 1
+                continue
+
+            prefixes.append(prefix)
+
+    # Step 2: Remove redundant (subsumed) prefixes using SubnetTree
+    prefixes.sort(key=lambda x: int(x.split('/')[1]))  # shorter prefixes first
+
+    tree = SubnetTree.SubnetTree()
+    kept = []
+
+    for p in prefixes:
+        ip_part = p.split('/')[0]
+        try:
+            _ = tree[ip_part]  # check if covered by an existing prefix
+            removed_subsumed += 1
+            continue
+        except KeyError:
+            tree[p] = p
+            kept.append(p)
+
+    # Step 3: Write results
+    with open(output_file, 'w') as outfile:
+        for p in kept:
+            outfile.write(p + '\n')
+
+    # Step 4: Print statistics
+    print("Processing complete.")
+    print(f"Total prefixes: {total_count}")
+    print(f"Removed (prefix length >= 64): {removed_long}")
+    print(f"Removed (subsumed by larger prefix): {removed_subsumed}")
+    print(f"Final kept: {len(kept)}")
+    print(f"Result saved to {output_file}")
 
 
 if __name__ == "__main__":
-    # Parse command line arguments
-    parser = argparse.ArgumentParser(description="Extract IPv6 prefixes from an IP-ASN file.")
+    parser = argparse.ArgumentParser(
+        description="Extract IPv6 prefixes (<64 and remove redundant ones) efficiently using SubnetTree."
+    )
     parser.add_argument("input_file", help="Path to the input IP-ASN file")
     parser.add_argument("output_file", help="Path to the output file for extracted prefixes")
     args = parser.parse_args()
 
-    # Call the function to process the file
     process_ipasn_file(args.input_file, args.output_file)

@@ -25,7 +25,7 @@
 #include <errno.h>
 #include <inttypes.h>
 
-
+uint64_t total_probes_sent = 0;
 void Scan(uint64_t index) {
     struct ethhdr eth;
     struct ip6_hdr ip6;
@@ -40,6 +40,7 @@ void Scan(uint64_t index) {
     memcpy(buffer + sizeof(struct ethhdr), &ip6, sizeof(struct ip6_hdr));
     memcpy(buffer + sizeof(struct ethhdr) + sizeof(struct ip6_hdr), &icmp6, sizeof(struct icmp6_hdr));
     send(fd, buffer, sizeof(buffer), 0);
+    __sync_add_and_fetch(&total_probes_sent, 1);
 }
 
 void* Recv(void* arg) {
@@ -207,7 +208,12 @@ void add_refined_prefix(PrefixInfo *table, uint64_t stub, uint64_t mask, uint64_
 }
 
 int main(int argc, char *argv[]) {
+    struct timespec start_time, end_time;
+    double elapsed_sec;
+    int hours, minutes;
+    double seconds;
 
+    clock_gettime(CLOCK_MONOTONIC, &start_time);
     // Check if the correct number of arguments is provided
     if (argc != 8) {
         printf("Usage: %s <interface_name> <source_mac> <source_ip> <gateway_mac> <input_filename> <output_filename_subnet> <output_filename_router>\n", argv[0]);
@@ -301,11 +307,13 @@ int main(int argc, char *argv[]) {
 
     round_num = 0;
     while (prefix_table_size != 0) {
+        printf("prefix_table_size: %ld\n", prefix_table_size);
+        fflush(stdout);
         round_num = round_num + 1;
         prefix_count = 0;
         PrefixInfo *cur_table = get_prefix_table(round_num);
         PrefixInfo *next_table = get_next_prefix_table(round_num);
-
+        memset(next_table, 0, sizeof(PrefixInfo) * MAX_PREFIX_TABLE_SIZE);
         // Copy all prefix indices into the array
         for (uint64_t i = 0; i < prefix_table_size; i++) {
             prefix_indices[prefix_count++] = i;
@@ -335,6 +343,7 @@ int main(int argc, char *argv[]) {
         // Sleep between rounds
         sleep(20);
 
+        last_prefix_table_size = prefix_table_size;
         prefix_table_size = 0;
         for (uint64_t i = 0; i < last_prefix_table_size; i++) {
             // Print prefixes that meet criteria
@@ -370,5 +379,19 @@ int main(int argc, char *argv[]) {
     close(fd);
     free(bloom_error_src);
     free(bloom_echo_src);
+
+
+    clock_gettime(CLOCK_MONOTONIC, &end_time);
+
+
+    elapsed_sec = (end_time.tv_sec - start_time.tv_sec) +
+                (end_time.tv_nsec - start_time.tv_nsec) / 1.0e9;
+                
+    hours = (int)(elapsed_sec / 3600);
+    minutes = (int)((elapsed_sec - hours * 3600) / 60);
+    seconds = elapsed_sec - hours * 3600 - minutes * 60;
+
+    printf("Loop execution time: %dh %dm %.2fs\n", hours, minutes, seconds);
+    printf("Total probe packets sent: %" PRIu64 "\n", total_probes_sent);
     return 0;
 }

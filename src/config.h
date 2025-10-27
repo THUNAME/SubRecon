@@ -12,7 +12,7 @@
 #include <unistd.h>
 
 #define BLOOM_FILTER_SIZE  (1 << 30)
-#define MAX_PREFIX_TABLE_SIZE (1 << 26)
+#define MAX_PREFIX_TABLE_SIZE (1 << 28)
 
 #ifndef htonll
 #define htonll(x) (((uint64_t)ntohl((x) & 0xFFFFFFFF) << 32) | ntohl((x) >> 32))

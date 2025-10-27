@@ -23,7 +23,7 @@ Before running SubRecon, ensure the following dependencies are installed:
 
 ### Step 1: BGP Prefix Data Preparation
 
-Before starting the probing process, generate the initial prefix dataset. This dataset is extracted from global BGP routing tables and contains IPv6 prefixes announced by Autonomous Systems (ASes).
+Before starting the probing process, generate the initial prefix dataset. This dataset is extracted from global BGP routing tables and contains IPv6 prefixes announced by Autonomous Systems (ASes). Prefixes with lengths greater than or equal to /64 have been excluded, as our analysis focuses only on prefixes with lengths less than /64.
 
 Run the following script:
 
