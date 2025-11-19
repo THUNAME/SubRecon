@@ -124,4 +124,27 @@ This command initiates probing using unmatched active addresses:
 
 By combining the results from both phases, `delimitation_subnet` and `expansion_subnet` for discovered subnets, and `delimitation_router` and `expansion_router` for last-hop routers, SubRecon constructs a more complete and accurate view of the active IPv6 subnet landscape.
 
+## Data Open Source Notice
 
+### Usage Restrictions
+
+This data is only allowed to be used for academic research. Any form of commercial use, data resale, or other non-academic use is strictly prohibited. Without permission, the data shall not be used to develop commercial products, conduct profit-making analysis, or disseminate it to commercial institutions.
+
+### Acquisition Method
+
+If you need to obtain the data, please send an email to [zhoujs24@mails.tsinghua.edu.cn] using your academic institution email. The email subject should indicate: Helixir Dataset Application for Academic Use - [Applicant's Name] - [Affiliated Institution]. The content of the email should include the following information:
+
+-   Applicant's name, affiliated academic institution, and title/identity (such as graduate student, researcher, etc.).
+-   Specific research project name, research purpose, and brief content for which the data is planned to be used.
+-   The required data scale, including the quantity, scope and specific types of data needed.
+-   A commitment to using the data solely for academic research and not for commercial use or illegal dissemination.
+
+### Review Process
+
+We will review the email within 7 working days after receiving it. After the review is passed, we will send you the data acquisition link and usage authorization instructions via email. If the application is not approved, the specific reason will also be informed.
+
+### Liability Statement
+
+Since these data are sensitive to some of the probed networks, if it is found that the data user violates the agreement of academic use, we have the right to terminate the data usage authorization immediately and reserve the right to pursue legal liability. The data user shall bear all relevant responsibilities arising from the use of the data, and our side shall not be responsible for any problems that may occur during the data usage process.
+
+We are committed to promoting academic cooperation and knowledge progress. Thank you for your understanding and cooperation! If you have any questions, please feel free to contact us at [zhoujs24@mails.tsinghua.edu.cn].
