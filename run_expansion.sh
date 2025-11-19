@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Define parameters
-INTERFACE_NAME=""
-SOURCE_MAC=""
-SOURCE_IP=""
-GATEWAY_MAC=""
+INTERFACE_NAME="enp33s0f0"
+SOURCE_MAC="6c:b3:11:ac:b9:a4"
+SOURCE_IP="2402:f000:6:1e00::227"
+GATEWAY_MAC="74:ea:c8:b4:24:d4"
 INPUT_FILENAME="input/unmatched_ips.txt"
 OUTPUT_DIR="output"
 OUTPUT_FILENAME_PREFIX="$OUTPUT_DIR/expansion_prefix"

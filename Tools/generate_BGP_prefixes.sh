@@ -15,15 +15,15 @@ check_error() {
     fi
 }
 
-# Download the latest IPv6 RIB data
-echo "Downloading latest IPv6 RIB data..."
-python3 Tools/pyasn_util_download.py --latestv6 --filename "$INPUT_DIR/rib.bz2"
-check_error "Failed to download RIB data."
+# # Download the latest IPv6 RIB data
+# echo "Downloading latest IPv6 RIB data..."
+# python3 Tools/pyasn_util_download.py --latestv6 --filename "$INPUT_DIR/rib.bz2"
+# check_error "Failed to download RIB data."
 
-# Convert the RIB data to an IP-ASN database file
-echo "Converting RIB data to IP-ASN database..."
-python3 Tools/pyasn_util_convert.py --single "$INPUT_DIR/rib.bz2" "$INPUT_DIR/ipasn.dat"
-check_error "Failed to convert RIB data to IP-ASN database."
+# # Convert the RIB data to an IP-ASN database file
+# echo "Converting RIB data to IP-ASN database..."
+# python3 Tools/pyasn_util_convert.py --single "$INPUT_DIR/rib.bz2" "$INPUT_DIR/ipasn.dat"
+# check_error "Failed to convert RIB data to IP-ASN database."
 
 # Extract BGP prefixes from the IP-ASN database
 echo "Extracting BGP prefixes..."
