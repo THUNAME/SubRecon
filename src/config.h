@@ -25,6 +25,14 @@ typedef struct {
     uint64_t unique_ifaces;
     uint64_t total_replies;
     uint64_t brute_count;
+
+    uint64_t total_sent;         
+    uint64_t sent_next0;         
+    uint64_t sent_next1;
+
+    uint64_t recv_next0;         
+    uint64_t recv_next1;    
+       
     char first_iface[INET6_ADDRSTRLEN];
 } PrefixInfo;
 

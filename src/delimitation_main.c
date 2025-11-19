@@ -26,6 +26,8 @@
 #include <inttypes.h>
 
 uint64_t total_probes_sent = 0;
+uint64_t total_saved_probes = 0;
+
 void Scan(uint64_t index) {
     struct ethhdr eth;
     struct ip6_hdr ip6;
@@ -111,6 +113,23 @@ void* Recv(void* arg) {
                 tPrefixInfo = &prefix_table_next[pkt_index_dst];
             }
 
+
+            // zjs add
+            uint64_t dst_high;
+            memcpy(&dst_high, ip_addr_dst.s6_addr, sizeof(uint64_t));
+            dst_high = be64toh(dst_high);  
+
+            uint64_t prefix_length = tPrefixInfo->prefix_length;
+            uint64_t bit_pos = 64 - (prefix_length + 1);
+            uint64_t bit = (dst_high >> bit_pos) & 1ULL;
+            if (bit == 0)
+                __sync_add_and_fetch(&(tPrefixInfo->recv_next0), 1);
+            else
+                __sync_add_and_fetch(&(tPrefixInfo->recv_next1), 1);
+            // printf("[DEBUG] dst_high = 0x%016lx, prefix_length = %lu, bit_pos = %lu, bit = %lu, dst_ip = %s\n",
+            //     dst_high, prefix_length, bit_pos, bit, ip_str_dst);
+            // zjs add
+
             __sync_add_and_fetch(&(tPrefixInfo->total_replies), 1);
         }
 
@@ -165,6 +184,22 @@ void* Recv(void* arg) {
                 __sync_add_and_fetch(&(tPrefixInfo->unique_ifaces), 1);
             }
 
+            // zjs add
+            uint64_t dst_high;
+            memcpy(&dst_high, ip_addr_payload_dst.s6_addr, sizeof(uint64_t));
+            dst_high = be64toh(dst_high);  
+
+            uint64_t prefix_length = tPrefixInfo->prefix_length;
+            uint64_t bit_pos = 64 - (prefix_length + 1);
+            uint64_t bit = (dst_high >> bit_pos) & 1ULL;
+            if (bit == 0)
+                __sync_add_and_fetch(&(tPrefixInfo->recv_next0), 1);
+            else
+                __sync_add_and_fetch(&(tPrefixInfo->recv_next1), 1);
+            // printf("[DEBUG] dst_high = 0x%016lx, prefix_length = %lu, bit_pos = %lu, bit = %lu, dst_ip = %s\n",
+            //     dst_high, prefix_length, bit_pos, bit, ip_str_dst);
+            // zjs add
+
             __sync_add_and_fetch(&(tPrefixInfo->total_replies), 1);
 
             uint32_t bloom_error_index_1 = murmur3(buf + 22, 16, 0x12345678);
@@ -197,13 +232,18 @@ PrefixInfo *get_next_prefix_table(int round_num) {
 }
 
 // Function to add a refined prefix to the table
-void add_refined_prefix(PrefixInfo *table, uint64_t stub, uint64_t mask, uint64_t length, uint64_t *size_ptr) {
+void add_refined_prefix(PrefixInfo *table, uint64_t stub, uint64_t mask, uint64_t length, uint64_t *size_ptr, uint64_t total_sent) {
     table[*size_ptr].prefix_stub = stub;
     table[*size_ptr].mask_suffix = mask;
     table[*size_ptr].prefix_length = length;
     table[*size_ptr].unique_ifaces = 0;
     table[*size_ptr].total_replies = 0;
     table[*size_ptr].brute_count = 0;
+    table[*size_ptr].total_sent = total_sent;
+    table[*size_ptr].sent_next0 = total_sent / 2;
+    table[*size_ptr].sent_next1 = total_sent - (total_sent / 2);
+    table[*size_ptr].recv_next0 = 0;
+    table[*size_ptr].recv_next1 = 0;
     (*size_ptr)++;
 }
 
@@ -308,6 +348,9 @@ int main(int argc, char *argv[]) {
     round_num = 0;
     while (prefix_table_size != 0) {
         printf("prefix_table_size: %ld\n", prefix_table_size);
+        printf("Total probe packets sent: %" PRIu64 "\n", total_probes_sent);
+        printf("Total probe packets save: %" PRIu64 "\n", total_saved_probes);
+
         fflush(stdout);
         round_num = round_num + 1;
         prefix_count = 0;
@@ -326,13 +369,14 @@ int main(int argc, char *argv[]) {
             for (uint64_t i = 0; i < prefix_count; i++) {
                 prefix_index = prefix_indices[i];
                 Scan(prefix_index); 
+                // usleep(100);
             }
 
             uint64_t i = 0;
             while (i < prefix_count) {
                 prefix_index = prefix_indices[i];
                 if ((cur_table[prefix_index].unique_ifaces > 1) ||
-                    (probe_sent >= getValueByLength(cur_table[prefix_index].prefix_length))) {
+                    (probe_sent >= cur_table[prefix_index].total_sent)) {
                     prefix_indices[i] = prefix_indices[--prefix_count]; // Remove and decrease count
                 } else {
                     i++; // Only increment i if not deleted
@@ -367,15 +411,40 @@ int main(int argc, char *argv[]) {
 
                 uint64_t prefix_length_next = cur_table[i].prefix_length + 1;
                 uint64_t mask = (~0ULL >> prefix_length_next) & 0xFFFFFFFFFFFFFFFF;
-                uint64_t stub1 = cur_table[i].prefix_stub | (1ULL << (64 - prefix_length_next));
-                uint64_t stub2 = cur_table[i].prefix_stub;
 
-                add_refined_prefix(next_table, stub1, mask, prefix_length_next, &prefix_table_size);
-                add_refined_prefix(next_table, stub2, mask, prefix_length_next, &prefix_table_size);
+                uint64_t stub0 = cur_table[i].prefix_stub;
+                uint64_t stub1 = cur_table[i].prefix_stub | (1ULL << (64 - prefix_length_next));
+                
+                uint64_t next0 = cur_table[i].recv_next0;
+                uint64_t next1 = cur_table[i].recv_next1;
+                uint64_t total_sent = getValueByLength(prefix_length_next);
+
+                uint64_t half_sent = cur_table[i].total_sent / 2;
+                uint64_t sent0, sent1, saved0 = 0, saved1 = 0;
+
+                if (next0 == 0) {
+                    sent0 = total_sent - half_sent;
+                    saved0 = half_sent;
+                } else {
+                    sent0 = total_sent;
+                }
+
+                if (next1 == 0) {
+                    sent1 = total_sent - (cur_table[i].total_sent - half_sent);
+                    saved1 = cur_table[i].total_sent - half_sent;
+                } else {
+                    sent1 = total_sent;
+                }
+
+                __sync_add_and_fetch(&total_saved_probes, saved0 + saved1);
+                
+                add_refined_prefix(next_table, stub0, mask, prefix_length_next, &prefix_table_size, sent0);
+                add_refined_prefix(next_table, stub1, mask, prefix_length_next, &prefix_table_size, sent1);
             }
         }
     }
-    sleep(10);
+    printf("all done\n");
+    sleep(100);
     close(fd);
     free(bloom_error_src);
     free(bloom_echo_src);

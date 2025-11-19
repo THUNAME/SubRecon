@@ -1,20 +1,25 @@
 #!/bin/bash
 
 # Define parameters
-INTERFACE_NAME="enp33s0f0"
-SOURCE_MAC="6c:b3:11:ac:b9:a4"
-SOURCE_IP="2402:f000:6:1e00::227"
-GATEWAY_MAC="74:ea:c8:b4:24:d4"
-# INPUT_FILENAME="input/BGP_prefixes.txt"
-# OUTPUT_DIR="output"
-# OUTPUT_FILENAME_SUBNET="$OUTPUT_DIR/delimitation_subnet"
-# OUTPUT_FILENAME_ROUTER="$OUTPUT_DIR/delimitation_router"
-
-
-INPUT_FILENAME="output/expansion_prefix"
+INTERFACE_NAME=""
+SOURCE_MAC=""
+SOURCE_IP=""
+GATEWAY_MAC=""
+INPUT_FILENAME="input/BGP_prefixes.txt"
 OUTPUT_DIR="output"
-OUTPUT_FILENAME_SUBNET="$OUTPUT_DIR/delimitation_subnet_2"
-OUTPUT_FILENAME_ROUTER="$OUTPUT_DIR/delimitation_router_2"
+OUTPUT_FILENAME_SUBNET="$OUTPUT_DIR/delimitation_subnet"
+OUTPUT_FILENAME_ROUTER="$OUTPUT_DIR/delimitation_router"
+
+# INPUT_FILENAME="output/expansion_prefix_delimitation"
+# OUTPUT_DIR="output"
+# OUTPUT_FILENAME_SUBNET="$OUTPUT_DIR/delimitation2_expansion_subnet_delimitation"
+# OUTPUT_FILENAME_ROUTER="$OUTPUT_DIR/delimitation2_expansion_router_delimitation"
+
+# INPUT_FILENAME="output/expansion_prefix_responsive"
+# OUTPUT_DIR="output"
+# OUTPUT_FILENAME_SUBNET="$OUTPUT_DIR/delimitation2_expansion_subnet_responsive"
+# OUTPUT_FILENAME_ROUTER="$OUTPUT_DIR/delimitation2_expansion_router_responsive"
+
 
 # Ensure the output directory exists
 if [ ! -d "$OUTPUT_DIR" ]; then

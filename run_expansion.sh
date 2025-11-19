@@ -1,14 +1,20 @@
 #!/bin/bash
 
 # Define parameters
-INTERFACE_NAME="enp33s0f0"
-SOURCE_MAC="6c:b3:11:ac:b9:a4"
-SOURCE_IP="2402:f000:6:1e00::227"
-GATEWAY_MAC="74:ea:c8:b4:24:d4"
-INPUT_FILENAME="input/unmatched_ips.txt"
+INTERFACE_NAME=""
+SOURCE_MAC=""
+SOURCE_IP=""
+GATEWAY_MAC=""
 OUTPUT_DIR="output"
-OUTPUT_FILENAME_PREFIX="$OUTPUT_DIR/expansion_prefix"
-OUTPUT_FILENAME_ROUTER="$OUTPUT_DIR/expansion_router"
+
+# Define input and output files
+INPUT_FILE_DELIM="input/unmatched_ips_delimitation.txt"
+OUTPUT_PREFIX_DELIM="$OUTPUT_DIR/expansion_prefix_delimitation"
+OUTPUT_ROUTER_DELIM="$OUTPUT_DIR/expansion_router_delimitation"
+
+INPUT_FILE_RESP="input/unmatched_ips_responsive.txt"
+OUTPUT_PREFIX_RESP="$OUTPUT_DIR/expansion_prefix_responsive"
+OUTPUT_ROUTER_RESP="$OUTPUT_DIR/expansion_router_responsive"
 
 
 # Ensure the output directory exists
@@ -23,6 +29,11 @@ if [ ! -f "bin/expansion_main" ]; then
     exit 1
 fi
 
-# Run the program
-echo "Running the program..."
-sudo bin/expansion_main "$INTERFACE_NAME" "$SOURCE_MAC" "$SOURCE_IP" "$GATEWAY_MAC" "$INPUT_FILENAME" "$OUTPUT_FILENAME_PREFIX" "$OUTPUT_FILENAME_ROUTER"
+
+# Run expansion for delimitation
+# sudo bin/expansion_main "$INTERFACE_NAME" "$SOURCE_MAC" "$SOURCE_IP" "$GATEWAY_MAC" "$INPUT_FILE_DELIM" "$OUTPUT_PREFIX_DELIM" "$OUTPUT_ROUTER_DELIM"
+# echo "Expansion completed for unmatched_ips_delimitation.txt. Output saved to $OUTPUT_PREFIX_DELIM and $OUTPUT_ROUTER_DELIM."
+
+# Run expansion for responsive
+sudo bin/expansion_main "$INTERFACE_NAME" "$SOURCE_MAC" "$SOURCE_IP" "$GATEWAY_MAC" "$INPUT_FILE_RESP" "$OUTPUT_PREFIX_RESP" "$OUTPUT_ROUTER_RESP"
+echo "Expansion completed for unmatched_ips_responsive.txt. Output saved to $OUTPUT_PREFIX_RESP and $OUTPUT_ROUTER_RESP."

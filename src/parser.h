@@ -2,6 +2,7 @@
 #define PARSER_H
 
 #include "config.h"
+#include "budget.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

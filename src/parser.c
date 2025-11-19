@@ -1,4 +1,4 @@
-#include "config.h"
+#include "parser.h"
 
 // Function to process and parse IPv6 CIDR prefixes from a file
 void processAndParsePrefix() {
@@ -34,6 +34,7 @@ void processAndParsePrefix() {
         // Convert prefix length to an integer
         int prefixLen = atoi(slashPos + 1);
         if (prefixLen < 0 || prefixLen > 128) {
+            printf("Invalid prefix length: %s\n", line);
             fprintf(stderr, "Invalid prefix length: %s\n", line);
             continue;
         }
@@ -60,6 +61,9 @@ void processAndParsePrefix() {
         prefix_table_current[prefix_table_size].unique_ifaces = 0;
         prefix_table_current[prefix_table_size].total_replies = 0;
         prefix_table_current[prefix_table_size].brute_count = 0;
+        prefix_table_current[prefix_table_size].total_sent = getValueByLength(prefixLen);
+        prefix_table_current[prefix_table_size].sent_next0 = prefix_table_current[prefix_table_size].total_sent / 2;
+        prefix_table_current[prefix_table_size].sent_next1 = prefix_table_current[prefix_table_size].total_sent - prefix_table_current[prefix_table_size].sent_next0;
         memset(prefix_table_current[prefix_table_size].first_iface, 0, sizeof(prefix_table_current[prefix_table_size].first_iface));
 
 

@@ -288,6 +288,7 @@ int main(int argc, char *argv[]) {
     // Process and parse input CIDR list
     processAndParseAddress(input_filename);
     printf("prefix_table_size: %ld\n", prefix_table_size);
+    fflush(stdout);
 
     pthread_t recv_thread;
     pthread_create(&recv_thread, NULL, Recv, NULL);
@@ -308,6 +309,8 @@ int main(int argc, char *argv[]) {
 
     round_num = 0;
     while (prefix_table_size != 0) {
+        printf("prefix_table_size: %ld\n", prefix_table_size);
+        fflush(stdout);
         round_num = round_num + 1;
         prefix_count = 0;
         PrefixInfo *cur_table = get_prefix_table(round_num);

@@ -50,16 +50,34 @@ void constructICMPv6Packet(uint64_t loop, struct ethhdr *eth_hdr, struct ip6_hdr
     }
     unsigned char dst_addr[16] = {0};
 
-    uint64_t random_val;
-
+    uint64_t random_val, prefix_stub, mask_suffix, prefix_length_next;
+    
     if (tPrefixInfo -> prefix_length > 56) 
     {
         random_val = tPrefixInfo->brute_count;
         tPrefixInfo->brute_count = tPrefixInfo->brute_count + 1; 
+        prefix_stub = tPrefixInfo -> prefix_stub;
+        mask_suffix = tPrefixInfo -> mask_suffix;
     }
-    else random_val = generate_64bit_random();
+    else 
+    {
+        random_val = generate_64bit_random();
+        prefix_length_next = tPrefixInfo -> prefix_length + 1;
+        mask_suffix = (~0ULL >> prefix_length_next) & 0xFFFFFFFFFFFFFFFF;
 
-    uint64_t dst_prefix = tPrefixInfo->prefix_stub + ((tPrefixInfo->mask_suffix) & random_val);
+        if (tPrefixInfo -> sent_next0 > 0) {
+            prefix_stub = tPrefixInfo -> prefix_stub;
+            tPrefixInfo -> sent_next0 = (tPrefixInfo -> sent_next0) - 1;
+        }
+        else {
+            prefix_stub = (tPrefixInfo -> prefix_stub) | (1ULL << (64 - prefix_length_next));
+            tPrefixInfo -> sent_next1 = (tPrefixInfo -> sent_next1) - 1;
+        }
+    }
+
+    uint64_t dst_prefix = prefix_stub + ((mask_suffix) & random_val);
+
+
     dst_prefix = htonll(dst_prefix);
     memcpy(dst_addr, &dst_prefix, sizeof(dst_prefix));
 
