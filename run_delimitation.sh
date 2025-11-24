@@ -5,25 +5,30 @@ INTERFACE_NAME=""
 SOURCE_MAC=""
 SOURCE_IP=""
 GATEWAY_MAC=""
+
+
+##############################################################################
+# Configuration Selection: Keep ONLY ONE configuration block active (uncommented)
+# Comment out the other two blocks according to your specific requirements.
+##############################################################################
+
+# ====================== 1: Input = Original BGP Prefixes ======================
 INPUT_FILENAME="input/BGP_prefixes.txt"
 OUTPUT_DIR="output"
 OUTPUT_FILENAME_SUBNET="$OUTPUT_DIR/delimitation_subnet"
 OUTPUT_FILENAME_ROUTER="$OUTPUT_DIR/delimitation_router"
 
-INPUT_FILENAME="output/expansion_prefix_delimitation"
-OUTPUT_DIR="output"
-OUTPUT_FILENAME_SUBNET="$OUTPUT_DIR/delimitation2_expansion_subnet_delimitation"
-OUTPUT_FILENAME_ROUTER="$OUTPUT_DIR/delimitation2_expansion_router_delimitation"
-
-INPUT_FILENAME="output/expansion_prefix_responsive"
-OUTPUT_DIR="output"
-OUTPUT_FILENAME_SUBNET="$OUTPUT_DIR/delimitation2_expansion_subnet_responsive"
-OUTPUT_FILENAME_ROUTER="$OUTPUT_DIR/delimitation2_expansion_router_responsive"
-
-# INPUT_FILENAME="input/test.txt"
+# ====================== 2: Input = Expanded Prefixes (Delimitation) ======================
+# INPUT_FILENAME="output/expansion_prefix_delimitation"
 # OUTPUT_DIR="output"
-# OUTPUT_FILENAME_SUBNET="$OUTPUT_DIR/subnet_test"
-# OUTPUT_FILENAME_ROUTER="$OUTPUT_DIR/router_test"
+# OUTPUT_FILENAME_SUBNET="$OUTPUT_DIR/delimitation2_expansion_subnet_delimitation"
+# OUTPUT_FILENAME_ROUTER="$OUTPUT_DIR/delimitation2_expansion_router_delimitation"
+
+# ====================== 3: Input = Expanded Prefixes (Responsive) ======================
+# INPUT_FILENAME="output/expansion_prefix_responsive"
+# OUTPUT_DIR="output"
+# OUTPUT_FILENAME_SUBNET="$OUTPUT_DIR/delimitation2_expansion_subnet_responsive"
+# OUTPUT_FILENAME_ROUTER="$OUTPUT_DIR/delimitation2_expansion_router_responsive"
 
 
 # Ensure the output directory exists

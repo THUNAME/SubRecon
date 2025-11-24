@@ -32,8 +32,8 @@ fi
 
 
 # Run expansion for delimitation
-# sudo bin/expansion_main "$INTERFACE_NAME" "$SOURCE_MAC" "$SOURCE_IP" "$GATEWAY_MAC" "$INPUT_FILE_DELIM" "$OUTPUT_PREFIX_DELIM" "$OUTPUT_ROUTER_DELIM"
-# echo "Expansion completed for unmatched_ips_delimitation.txt. Output saved to $OUTPUT_PREFIX_DELIM and $OUTPUT_ROUTER_DELIM."
+sudo bin/expansion_main "$INTERFACE_NAME" "$SOURCE_MAC" "$SOURCE_IP" "$GATEWAY_MAC" "$INPUT_FILE_DELIM" "$OUTPUT_PREFIX_DELIM" "$OUTPUT_ROUTER_DELIM"
+echo "Expansion completed for unmatched_ips_delimitation.txt. Output saved to $OUTPUT_PREFIX_DELIM and $OUTPUT_ROUTER_DELIM."
 
 # Run expansion for responsive
 sudo bin/expansion_main "$INTERFACE_NAME" "$SOURCE_MAC" "$SOURCE_IP" "$GATEWAY_MAC" "$INPUT_FILE_RESP" "$OUTPUT_PREFIX_RESP" "$OUTPUT_ROUTER_RESP"
