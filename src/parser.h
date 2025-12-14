@@ -9,7 +9,7 @@
 #include <stdint.h>
 #include <arpa/inet.h>
 
-// Function to parse CIDR from a file
+// Function to parse CIDR
 void processAndParsePrefix();
 void processAndParseAddress();
 #endif 

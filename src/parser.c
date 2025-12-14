@@ -8,7 +8,7 @@ void processAndParsePrefix() {
         exit(EXIT_FAILURE);
     }
 
-    char line[100]; // Buffer for each line
+    char line[100]; // Buffer 
     size_t lineCount = 0;
 
     while (fgets(line, sizeof(line), file)) {

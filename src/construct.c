@@ -91,7 +91,7 @@ void constructICMPv6Packet(uint64_t loop, struct ethhdr *eth_hdr, struct ip6_hdr
 
     // ICMPv6 header
     icmp6_hdr->icmp6_type = ICMP6_ECHO_REQUEST; // Echo request
-    icmp6_hdr->icmp6_code = 0;
+    icmp6_hdr->icmp6_code = 0; // Code = 0
     icmp6_hdr->icmp6_cksum = 0; // Checksum will be calculated later
     
     

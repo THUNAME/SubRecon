@@ -34,7 +34,7 @@ void Scan(uint64_t index) {
     struct icmp6_hdr icmp6;
     constructICMPv6Packet(probe_sent, &eth, &ip6, &icmp6, index);
 
-    // Create a buffer large enough to store the entire packet
+    // Create a buffer large enough to store the packet
     unsigned char buffer[sizeof(struct ethhdr) + sizeof(struct ip6_hdr) + sizeof(struct icmp6_hdr)];
 
     // Copy Ethernet, IPv6, and ICMPv6 headers into the buffer sequentially
